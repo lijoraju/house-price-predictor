@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+.conda/
+env/
+*.conda
+environment.yml
+*.lock
+.ipynb_checkpoints/
+*.joblib
+*.log
+*.dockerignore
+Dockerfile
+.dockerenv
+docker-compose.yml
