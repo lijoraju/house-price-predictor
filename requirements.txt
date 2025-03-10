@@ -1,5 +1,7 @@
 Flask
 joblib
+mlflow
+mlflow_skinny
 numpy
 pandas
 scikit_learn

@@ -13,3 +13,4 @@ environment.yml
 Dockerfile
 .dockerenv
 docker-compose.yml
+/mlruns

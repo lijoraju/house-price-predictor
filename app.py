@@ -1,14 +1,8 @@
-import numpy as np
 from flask import Flask, request, jsonify
-import joblib
 import pandas as pd
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.feature_selection import SelectKBest, f_regression
 import logging
 import traceback
+import mlflow.sklearn
 
 #setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,8 +18,10 @@ def add_features(X):
     return X
 
 # Load the trained model and preprocessing pipeline
-def load_model(filename="california_housing_model.joblib"):
-    return joblib.load(filename)
+def load_model(model_name="model", stage="Production"):
+    logging.info(f"Loading model {model_name} from stage {stage}")
+    model = mlflow.sklearn.load_model(f"models:/{model_name}/{stage}")
+    return model
 
 pipeline = load_model()
 

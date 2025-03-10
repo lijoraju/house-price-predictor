@@ -12,6 +12,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import mlflow
+import mlflow.sklearn
 
 
 def load_data():
@@ -59,13 +61,14 @@ def evaluate_model(model_name, pipeline, param_grid, X_train, y_train, X_test, y
     }
     
     print(f"{model_name} Results:\n", scores, "\n", "-" * 30)
-    return grid_search.best_estimator_, scores['R²']
+    return grid_search.best_estimator_, scores['R²'], scores
 
 def save_model(model, filename="california_housing_model.joblib"):
     joblib.dump(model, filename)
     print(f"Best model saved as {filename}")
 
 def main():
+    mlflow.set_experiment("California Housing Price Prediction")
     df = load_data()
     X, y = df.drop('MedHouseVal', axis=1), df['MedHouseVal']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -78,19 +81,19 @@ def main():
             'selector__k': list(range(3, len(numerical_features) + 1))
         }),
         'Decision Tree': (DecisionTreeRegressor(random_state=42), {
-            'selector__k': [4, 8, 'all'],
+            'selector__k': [4, 8, 12, 'all'],
             'model__max_depth': [None, 5, 10, 15, 20, 30],
             'model__min_samples_split': [2, 5, 10, 20, 50]
         }),
         'Random Forest': (RandomForestRegressor(random_state=42), {
-            'selector__k': [4, 8, 'all'],
+            'selector__k': [4, 8, 12, 'all'],
             'model__n_estimators': [50, 100, 200, 300, 500],
             'model__max_depth': [None, 5, 10, 15, 20, 30],
             'model__min_samples_split': [2, 5, 10, 20, 50],
             'model__min_samples_leaf': [1, 2, 5, 10]
         }),
         'XGBoost': (xgb.XGBRegressor(random_state=42), {
-            'selector__k': [4, 8, 'all'],
+            'selector__k': [4, 8, 12, 'all'],
             'model__n_estimators': [50, 100, 200, 300, 500],
             'model__max_depth': [3, 5, 7, 10, 15],
             'model__learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2, 0.3],
@@ -99,12 +102,21 @@ def main():
         })
     }
 
+    input_example = X_train.iloc[[0]]
     best_model, best_score = None, float('-inf')
     for name, (model, param_grid) in models.items():
-        pipeline = build_pipeline(model, numerical_features)
-        estimator, score = evaluate_model(name, pipeline, param_grid, X_train, y_train, X_test, y_test)
-        if score > best_score:
-            best_model, best_score = estimator, score
+        with mlflow.start_run():
+            pipeline = build_pipeline(model, numerical_features)
+            estimator, score, scores = evaluate_model(name, pipeline, param_grid, X_train, y_train, X_test, y_test)
+            if score > best_score:
+                best_model, best_score = estimator, score
+
+            mlflow.log_params(scores['Best Params'])
+            mlflow.log_metric("R²", scores['R²'])
+            mlflow.log_metric("RMSE", scores['RMSE'])
+            mlflow.log_metric("MAE", scores['MAE'])
+            mlflow.sklearn.log_model(estimator, "model", input_example=input_example)
+            mlflow.set_tag("model_name", name)
     
     print(f"Best Model: {best_model}")
     save_model(best_model)
