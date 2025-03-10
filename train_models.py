@@ -75,7 +75,7 @@ def main():
     
     models = {
         'Linear Regression': (LinearRegression(), {
-            'selector__k': list(range(3, len(numerical_features) + 1, 2))
+            'selector__k': list(range(3, len(numerical_features) + 1))
         }),
         'Decision Tree': (DecisionTreeRegressor(random_state=42), {
             'selector__k': [4, 8, 'all'],
