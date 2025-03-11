@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>California Housing Price Prediction System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 900px;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        a {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>California Housing Price Prediction System</h1>
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#data-preprocessing">Data Preprocessing and Feature Engineering</a></li>
+            <li><a href="#model-selection">Model Selection and Optimization</a></li>
+            <li><a href="#deployment">Deployment Strategy and API Usage Guide</a></li>
+            <li><a href="#frontend">Frontend Interface</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+        
+        <h2 id="introduction">1. Introduction</h2>
+        <p>The objective of this project was to <strong>Build and Deploy a Machine Learning Model for Predicting House Prices</strong>. The project utilizes the <strong>California Housing Dataset</strong> from Scikit-learn, which contains information about housing characteristics and median house values for different districts in California. This dataset was derived from the 1990 U.S. Census and includes important demographic and housing features.</p>
+        
+        <p>The project follows a structured approach, including data preprocessing, feature engineering, model selection and optimization, deployment of a Flask-based API on AWS, and frontend integration to create a user-friendly interface. The final system provides real-time predictions for house prices based on user inputs.</p>
+        
+        <h2 id="data-preprocessing">2. Data Preprocessing and Feature Engineering</h2>
+        <p>The dataset consists of 8 predictive attributes and a target variable that represents the median house value for California districts.</p>
+        
+        <h3>Dataset Overview</h3>
+        <pre>
+Number of Instances: 20,640
+Number of Attributes: 8 numeric predictive attributes and 1 target variable
+Attributes:
+- MedInc: Median income in block group
+- HouseAge: Median house age in block group
+- AveRooms: Average number of rooms per household
+- AveBedrms: Average number of bedrooms per household
+- Population: Block group population
+- AveOccup: Average number of household members
+- Latitude: Block group latitude
+- Longitude: Block group longitude
+</pre>
+        
+        <h3>Handling Missing Values</h3>
+        <p>The dataset was checked for missing values, and none were found. Therefore, no imputation was necessary.</p>
+        
+        <h3>Feature Engineering</h3>
+        <p>To enhance the predictive power of the model, additional features were created:</p>
+        <ul>
+            <li><strong>RoomsPerBedroom:</strong> Ratio of average rooms to average bedrooms.</li>
+            <li><strong>PopulationPerBedroom:</strong> Ratio of population to average bedrooms.</li>
+            <li><strong>MedInc_HouseAge:</strong> Interaction feature combining median income and house age.</li>
+            <li><strong>Latitude_Longitude:</strong> Product of latitude and longitude to capture geographic effects.</li>
+        </ul>
+        
+        <h3>Feature Scaling</h3>
+        <p>Standardization was applied to numerical attributes to ensure uniform scaling, improving model performance.</p>
+        
+        <h2 id="model-selection">3. Model Selection and Optimization</h2>
+        
+        <h3>Model Comparison</h3>
+        <canvas id="modelComparisonChart" width="400" height="200"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx = document.getElementById('modelComparisonChart').getContext('2d');
+            const modelComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['XGBoost', 'Random Forest', 'Decision Tree', 'Linear Regression'],
+                    datasets: [{
+                        label: 'R² Score',
+                        data: [0.8518, 0.8064, 0.7295, 0.6007],
+                        backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#F44336']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        </script>
+        <p>Several machine learning models were evaluated based on their performance metrics:</p>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <tr>
+                <th>Model</th>
+                <th>Mean Absolute Error (MAE)</th>
+                <th>Root Mean Squared Error (RMSE)</th>
+                <th>R² Score</th>
+            </tr>
+            <tr>
+                <td>XGBoost</td>
+                <td>0.2874</td>
+                <td>0.4406</td>
+                <td>0.8518</td>
+            </tr>
+            <tr>
+                <td>Random Forest</td>
+                <td>0.3273</td>
+                <td>0.5036</td>
+                <td>0.8064</td>
+            </tr>
+            <tr>
+                <td>Decision Tree</td>
+                <td>0.3956</td>
+                <td>0.5954</td>
+                <td>0.7295</td>
+            </tr>
+            <tr>
+                <td>Linear Regression</td>
+                <td>0.5227</td>
+                <td>0.7233</td>
+                <td>0.6007</td>
+            </tr>
+        </table>
+        
+        <h3>Final Model Selection</h3>
+        <p>Based on the evaluation metrics, the <strong>XGBoost</strong> model was selected as the best-performing model, achieving the highest R² score (0.8518) and the lowest MAE and RMSE values.</p>
+        
+        <h3>Selected Features</h3>
+        <p>The XGBoost model used all available features for training, ensuring maximum predictive power.</p>
+        
+        <p>Several machine learning models were evaluated to determine the best-performing one for predicting house prices. The models considered included:</p>
+        
+        <ul>
+            <li><strong>Linear Regression:</strong> A baseline model to establish a simple relationship between features and house prices.</li>
+            <li><strong>Decision Tree Regressor:</strong> A non-linear model that captures complex feature interactions.</li>
+            <li><strong>Random Forest Regressor:</strong> An ensemble approach that reduces overfitting by averaging multiple decision trees.</li>
+            <li><strong>XGBoost Regressor:</strong> A gradient boosting model known for high performance and optimization.</li>
+        </ul>
+        
+        <h3>Hyperparameter Optimization</h3>
+        <p>To improve model performance, hyperparameters were fine-tuned using:</p>
+        <ul>
+            <li><strong>Grid Search:</strong> Exhaustive search over a predefined set of hyperparameter values.</li>
+            <li><strong>Randomized Search:</strong> Random sampling of hyperparameters to find optimal configurations faster.</li>
+        </ul>
+        
+        <h3>Model Evaluation</h3>
+        <p>The models were assessed using the following metrics:</p>
+        <ul>
+            <li><strong>Mean Squared Error (MSE):</strong> Measures the average squared difference between predicted and actual values.</li>
+            <li><strong>Mean Absolute Error (MAE):</strong> Measures prediction errors in absolute terms.</li>
+            <li><strong>R-squared Score (R²):</strong> Determines how well the model explains variance in house prices.</li>
+        </ul>
+        
+        <h3>Model Storage and Tracking</h3>
+        <p>The trained models were stored using <code>joblib</code> for future use, and <strong>MLflow</strong> was used for tracking experiments and comparing different model versions.</p>
+        
+        <h2 id="deployment">4. Deployment Strategy and API Usage Guide</h2>
+        <p>The API is deployed using Flask and Docker on AWS. The endpoint for predictions is:</p>
+        <p>Alternatively, the API can also be tested using Postman. Users can send a <code>POST</code> request with JSON-formatted data to the API endpoint and view the response directly in the Postman interface.</p>
+        <pre>http://ec2-13-203-104-133.ap-south-1.compute.amazonaws.com/predict</pre>
+        <p>Example cURL request:</p>
+        <pre>curl -X POST -H "Content-Type: application/json" -d '{ "MedInc": 3.5, "HouseAge": 25.0, "AveRooms": 6.2, "AveBedrms": 1.1, "Population": 1500.0, "AveOccup": 3.0, "Latitude": 34.2, "Longitude": -118.5 }' http://ec2-13-203-104-133.ap-south-1.compute.amazonaws.com/predict</pre>
+        
+        <h2 id="frontend">5. Frontend Interface</h2>
+        <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWFzeGl0MmVia2JmcWY3ajF2bWx2NmxraWkwOWtyOWpqN2RiNzQ2eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wYJEGgKE1dshdBZT37/giphy.gif" alt="Live Demo of Prediction System">
+        <p>The frontend is a lightweight and user-friendly web interface designed to allow users to input housing-related data and receive predictions from the trained model.</p>
+        
+        <h3>Features and Design</h3>
+        <ul>
+            <li><strong>HTML Form for Input:</strong> The interface includes an input form with fields for key housing attributes such as median income, house age, average rooms, and geographical coordinates.</li>
+            <li><strong>CSS Styling:</strong> Basic styling ensures a clean and user-friendly layout with a centered form and responsive design.</li>
+            <li><strong>JavaScript for API Interaction:</strong>
+                <ul>
+                    <li>Captures user input from the form.</li>
+                    <li>Sends a <code>POST</code> request to the API endpoint.</li>
+                    <li>Handles API responses and displays the predicted price dynamically.</li>
+                    <li>Displays error messages if the API call fails.</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <h3>API Integration</h3>
+        <p>The frontend communicates with the `/predict` endpoint by sending user-provided inputs in JSON format. The API then returns the predicted house price, which is displayed on the webpage.</p>
+        
+        <p><strong>Updated API URL:</strong></p>
+        <pre>http://ec2-13-203-104-133.ap-south-1.compute.amazonaws.com/predict</pre>
+        
+        <p>The interface is designed to be intuitive and efficient, providing real-time predictions with minimal latency.</p>
+        
+        <h2 id="conclusion">6. Conclusion</h2>
+        <p>The <strong>California Housing Price Prediction System</strong> successfully integrates data preprocessing, machine learning model selection, deployment through Flask and AWS, and a user-friendly frontend. By leveraging structured datasets, feature engineering, and optimized machine learning models, the system provides accurate predictions for house prices in California.</p>
+        
+        <p>The deployment strategy ensures that the API is accessible via a cloud-hosted endpoint, allowing seamless interaction with the frontend interface. Users can input housing attributes, send requests to the API, and receive real-time predictions.</p>
+        
+        <p>Future improvements could include:</p>
+        <ul>
+            <li>Enhancing the model's accuracy with additional feature engineering.</li>
+            <li>Deploying the system with auto-scaling features for better performance.</li>
+            <li>Integrating more visualization tools for better user insights.</li>
+            <li>Expanding the dataset to improve generalization across different regions.</li>
+        </ul>
+        
+        <p>This project demonstrates how machine learning can be effectively utilized to analyze housing market trends and provide valuable insights for decision-makers.</p>
+    </div>
+</body>
+</html>
+</body>
+</html>
