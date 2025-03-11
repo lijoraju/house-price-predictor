@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>California Housing Price Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>California Housing Price Predictor</h2>
+        <form id="predict-form">
+            <input type="number" id="MedInc" step="0.0001" placeholder="Median Income" required>
+            <input type="number" id="HouseAge" step="0.1" placeholder="House Age" required>
+            <input type="number" id="AveRooms" step="0.000001" placeholder="Average Rooms" required>
+            <input type="number" id="AveBedrms" step="0.00001" placeholder="Average Bedrooms" required>
+            <input type="number" id="Population" step="1" placeholder="Population" required>
+            <input type="number" id="AveOccup" step="0.000001" placeholder="Average Occupancy" required>
+            <input type="number" id="Latitude" step="0.01" placeholder="Latitude" required>
+            <input type="number" id="Longitude" step="0.01" placeholder="Longitude" required>
+            <button type="submit">Predict Price</button>
+        </form>
+        <h3 id="result"></h3>
+    </div>
+
+    <script>
+        document.getElementById("predict-form").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const data = {
+                MedInc: parseFloat(document.getElementById("MedInc").value),
+                HouseAge: parseFloat(document.getElementById("HouseAge").value),
+                AveRooms: parseFloat(document.getElementById("AveRooms").value),
+                AveBedrms: parseFloat(document.getElementById("AveBedrms").value),
+                Population: parseFloat(document.getElementById("Population").value),
+                AveOccup: parseFloat(document.getElementById("AveOccup").value),
+                Latitude: parseFloat(document.getElementById("Latitude").value),
+                Longitude: parseFloat(document.getElementById("Longitude").value)
+            };
+
+            try {
+                const response = await fetch("http://13.203.104.133:8000/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server Error: ${response.status} - ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                document.getElementById("result").innerText = "Predicted Price: $" + result.prediction;
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                document.getElementById("result").innerText = "Error: " + error.message;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -2,12 +2,15 @@ from flask import Flask, request, jsonify
 import pandas as pd
 import logging
 import traceback
+import joblib
 import mlflow.sklearn
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
 
 #setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-app = Flask(__name__)
 
 def add_features(X):
     X = X.copy()
@@ -18,10 +21,12 @@ def add_features(X):
     return X
 
 # Load the trained model and preprocessing pipeline
-def load_model(model_name="model", stage="Production"):
-    logging.info(f"Loading model {model_name} from stage {stage}")
-    model = mlflow.sklearn.load_model(f"models:/{model_name}/{stage}")
-    return model
+# def load_model(model_name="CaliforniaHousingModel", stage="None"):
+#     logging.info(f"Loading model {model_name} from stage {stage}")
+#     model = mlflow.sklearn.load_model(f"models:/{model_name}/{stage}")
+#     return model
+def load_model(filename="california_housing_model.joblib"):
+     return joblib.load(filename)
 
 pipeline = load_model()
 
@@ -43,4 +48,4 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8000)
