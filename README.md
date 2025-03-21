@@ -2,7 +2,7 @@
 
 🔗 **Live Demo:** [House Price Predictor](http://ec2-13-203-104-133.ap-south-1.compute.amazonaws.com)
 
-📄 **Project Report:** [Full Documentation](https://lijoraju.github.io/house-price-predictor)
+📄 **Project Report:** [Full Documentation](https://lijoraju.github.io/house-price-predictor/#conclusion)
 
 ## Project Overview
 This project builds and deploys a machine learning model to predict house prices in California based on various housing and demographic attributes. The system includes:
