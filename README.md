@@ -27,8 +27,8 @@ Ensure you have Python 3.9+ installed on your system. You also need `pip` for pa
 
 ### Clone the Repository
 ```sh
-git clone https://github.com/yourusername/california-housing-prediction.git
-cd california-housing-prediction
+git clone https://github.com/lijoraju/house-price-predictor.git
+cd house-price-predictor
 ```
 
 ### Install Dependencies
